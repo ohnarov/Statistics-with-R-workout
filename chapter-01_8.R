@@ -30,13 +30,31 @@ gss.2016.cleaned <- gss.2016 %>%
                        labels = c("<30", "30-59", "60-74", "75+")
                        ))
 
-summary(gss.2016)
-head(gss.2016)
-tail(gss.2016)
+summary(gss.2016.cleaned)
+head(gss.2016.cleaned)
+tail(gss.2016.cleaned)
 
 # bar plot chart
 legalize.bar <- gss.2016.cleaned %>%
-  ggplot(aes(grass)) + geom_bar()
+  drop_na(grass) %>%
+  drop_na(age) %>%
+  mutate(grass = recode_factor(grass,
+                               'LEGAL' = "Yes",
+                               'NOT LEGAL' = "No")) %>%
+  group_by(grass, age.cat) %>%
+  count() %>%
+  group_by(age.cat) %>%
+  mutate(perc.grass = 100*n/sum(n)) %>%
+  
+  
+  ggplot(aes(x = age.cat, fill = grass,
+             y = perc.grass)) + 
+  geom_col(position = 'dodge') +
+  scale_fill_manual(values = c("#78A678", "#7463AC"),
+                    name = "Should marijuana be legal?") +
+  theme_minimal() +
+  labs(x = "Age group in years",
+       y = "Percent of responses in age group, %")
 
 legalize.bar
 
